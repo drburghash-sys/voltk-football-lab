@@ -369,13 +369,14 @@
         <div class="field"><label>صورة اللاعب</label><input id="playerPhoto" type="file" accept="image/*"></div>
         <div class="field"><label>ستايل البطاقة</label>
           <select id="cardStyle" onchange="drawPlayerCard()">
-            <option value="volt">VOLTK Neon</option>
-            <option value="gold">Elite Gold</option>
+            <option value="gold">Gold Classic</option>
+            <option value="black">Black Special</option>
             <option value="ice">Ice Blue</option>
+            <option value="volt">VOLTK Neon</option>
           </select>
         </div>
         <div class="notice">
-          للحفاظ على البرنامج كملف HTML واحد بدون خدمات خارجية، يتم إدخال الصورة داخل البطاقة كما هي مع قص احترافي. إزالة الخلفية تلقائيًا تحتاج خدمة أو نموذج AI منفصل.
+          تم تطوير شكل البطاقة ليصبح أقرب لأسلوب بطاقات فيفا: تقييم كبير أعلى اليسار، صورة لاعب أكبر، لوحة اسم واضحة، وترتيب الطاقات الست بشكل احترافي. ما زالت إزالة الخلفية التلقائية غير مفعّلة داخل هذه النسخة المحلية.
         </div>
         <div class="actions">
           <button class="btn secondary" onclick="drawPlayerCard()">تحديث البطاقة</button>
@@ -680,11 +681,81 @@ $('playerPhoto').addEventListener('change',e=>{
   img.src=URL.createObjectURL(file);
 });
 
-function hexRoundRect(ctx,x,y,w,h,r,fill,stroke){
+function drawCardShape(ctx,x,y,w,h,r=44){
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.lineTo(x+w-r-30, y);
+  ctx.quadraticCurveTo(x+w-8, y+10, x+w-4, y+55);
+  ctx.lineTo(x+w-4, y+h-r-18);
+  ctx.quadraticCurveTo(x+w-12, y+h-2, x+w-r-24, y+h-2);
+  ctx.lineTo(x+r+24, y+h-2);
+  ctx.quadraticCurveTo(x+10, y+h-8, x+6, y+h-r-18);
+  ctx.lineTo(x+6, y+48);
+  ctx.quadraticCurveTo(x+10, y+10, x+r, y);
+  ctx.closePath();
+}
+function addCardPattern(ctx,t,x,y,w,h){
+  ctx.save();
+  drawCardShape(ctx,x,y,w,h,44);
+  ctx.clip();
+
+  const stripe=ctx.createLinearGradient(x,y,x+w,y+h);
+  stripe.addColorStop(0,'rgba(255,255,255,.16)');
+  stripe.addColorStop(.45,'rgba(255,255,255,0)');
+  stripe.addColorStop(.75,'rgba(255,255,255,.07)');
+  stripe.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=stripe;
+  for(let i=-300;i<1100;i+=120){
+    ctx.save();
+    ctx.translate(i,0);
+    ctx.rotate(-0.35);
+    ctx.fillRect(x-100,y-120,70,h+300);
+    ctx.restore();
+  }
+
+  ctx.globalAlpha=.12;
+  ctx.strokeStyle=t.accent2;
+  ctx.lineWidth=3;
+  for(let i=0;i<7;i++){
+    ctx.beginPath();
+    ctx.arc(x+w*0.72,y+h*0.18,90+i*28,Math.PI*0.08,Math.PI*1.18);
+    ctx.stroke();
+  }
+  ctx.globalAlpha=1;
+
+  const glow1=ctx.createRadialGradient(x+w*0.78,y+h*0.2,20,x+w*0.78,y+h*0.2,250);
+  glow1.addColorStop(0,t.glow);
+  glow1.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=glow1; ctx.fillRect(x,y,w,h);
+
+  const glow2=ctx.createRadialGradient(x+w*0.2,y+h*0.85,10,x+w*0.2,y+h*0.85,220);
+  glow2.addColorStop(0,t.glow2);
+  glow2.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=glow2; ctx.fillRect(x,y,w,h);
+
+  ctx.restore();
+}
+function drawRoundedRect(ctx,x,y,w,h,r,fill,stroke,sw=2){
   ctx.beginPath();
   ctx.roundRect(x,y,w,h,r);
-  if(fill){ctx.fillStyle=fill;ctx.fill()}
-  if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=3;ctx.stroke()}
+  if(fill){ctx.fillStyle=fill;ctx.fill();}
+  if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=sw;ctx.stroke();}
+}
+function fitText(ctx,text,maxWidth,startSize,weight='900',family='system-ui'){
+  let size=startSize;
+  while(size>20){
+    ctx.font=`${weight} ${size}px ${family}`;
+    if(ctx.measureText(text).width<=maxWidth) return size;
+    size-=2;
+  }
+  return size;
+}
+function drawMiniLabel(ctx,x,y,w,h,text,fill,color,stroke='rgba(255,255,255,.2)'){
+  drawRoundedRect(ctx,x,y,w,h,18,fill,stroke,2);
+  ctx.fillStyle=color;
+  ctx.font='800 20px system-ui';
+  ctx.textAlign='center';
+  ctx.fillText(text,x+w/2,y+h/2+7);
 }
 function drawPlayerCard(){
   const canvas=$('playerCard'), ctx=canvas.getContext('2d');
@@ -692,60 +763,150 @@ function drawPlayerCard(){
   const p=players.find(x=>x.id===id)||currentResult;
   const style=$('cardStyle').value;
   const themes={
-    volt:{bg1:'#0a111a',bg2:'#142b2d',accent:'#d7ff39',accent2:'#54e7ff',text:'#f5fbff'},
-    gold:{bg1:'#17120a',bg2:'#3a2b0f',accent:'#ffd76a',accent2:'#f3a742',text:'#fff7df'},
-    ice:{bg1:'#0a1118',bg2:'#0d2e47',accent:'#9feaff',accent2:'#4eb6ff',text:'#ecfaff'}
+    gold:{bg1:'#b8882f',bg2:'#f0d590',panel:'#8d6320',accent:'#fff4cf',accent2:'#f8c44a',text:'#2b1b05',text2:'#5f4213',glow:'rgba(255,245,214,.55)',glow2:'rgba(255,214,107,.25)'},
+    black:{bg1:'#0b0d12',bg2:'#242937',panel:'#111827',accent:'#f4f7fb',accent2:'#8fe3ff',text:'#f5f8ff',text2:'#b8c7df',glow:'rgba(143,227,255,.26)',glow2:'rgba(255,255,255,.1)'},
+    ice:{bg1:'#d7efff',bg2:'#6cbcf0',panel:'#2f6b97',accent:'#ffffff',accent2:'#dff7ff',text:'#10283d',text2:'#26455e',glow:'rgba(255,255,255,.48)',glow2:'rgba(132,212,255,.3)'},
+    volt:{bg1:'#0a111a',bg2:'#1e3433',panel:'#142b2d',accent:'#efffe2',accent2:'#d7ff39',text:'#f6fff9',text2:'#beded6',glow:'rgba(215,255,57,.25)',glow2:'rgba(84,231,255,.22)'}
   };
-  const t=themes[style]||themes.volt;
-  ctx.clearRect(0,0,900,1200);
-  const g=ctx.createLinearGradient(0,0,900,1200);g.addColorStop(0,t.bg1);g.addColorStop(1,t.bg2);
-  ctx.fillStyle=g;ctx.fillRect(0,0,900,1200);
+  const t=themes[style]||themes.gold;
 
-  // Decorative frame
-  ctx.strokeStyle=t.accent;ctx.lineWidth=10;
-  ctx.beginPath();ctx.moveTo(120,35);ctx.lineTo(780,35);ctx.lineTo(855,150);ctx.lineTo(825,1005);ctx.lineTo(700,1160);ctx.lineTo(200,1160);ctx.lineTo(75,1005);ctx.lineTo(45,150);ctx.closePath();ctx.stroke();
-  ctx.strokeStyle=t.accent2;ctx.lineWidth=3;ctx.globalAlpha=.65;
-  ctx.strokeRect(78,92,744,980);ctx.globalAlpha=1;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const bg=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+  bg.addColorStop(0,t.bg1); bg.addColorStop(1,t.bg2);
+  ctx.fillStyle=bg; ctx.fillRect(0,0,canvas.width,canvas.height);
 
-  ctx.fillStyle=t.accent;ctx.font='900 42px system-ui';ctx.textAlign='left';ctx.fillText('VOLTK',65,85);
+  const x=48,y=34,w=804,h=1132;
+  ctx.save();
+  drawCardShape(ctx,x,y,w,h,44);
+  ctx.fillStyle='rgba(255,255,255,.08)';
+  ctx.shadowColor='rgba(0,0,0,.38)'; ctx.shadowBlur=35; ctx.shadowOffsetY=18;
+  ctx.fill();
+  ctx.restore();
+
+  // Main base and border
+  ctx.save();
+  drawCardShape(ctx,x,y,w,h,44);
+  ctx.clip();
+  const base=ctx.createLinearGradient(x,y,x+w,y+h);
+  base.addColorStop(0,t.bg1); base.addColorStop(.5,t.bg2); base.addColorStop(1,t.panel);
+  ctx.fillStyle=base; ctx.fillRect(x,y,w,h);
+  ctx.restore();
+
+  addCardPattern(ctx,t,x,y,w,h);
+  ctx.save();
+  drawCardShape(ctx,x,y,w,h,44);
+  ctx.strokeStyle='rgba(255,255,255,.28)';
+  ctx.lineWidth=4;
+  ctx.stroke();
+  ctx.restore();
+
   if(!p){
-    ctx.fillStyle=t.text;ctx.font='700 42px system-ui';ctx.textAlign='center';ctx.fillText('لا توجد نتيجة بعد',450,600);return;
+    ctx.fillStyle=t.text;
+    ctx.font='800 44px system-ui';
+    ctx.textAlign='center';
+    ctx.fillText('لا توجد نتيجة بعد',450,600);
+    return;
   }
 
-  ctx.fillStyle=t.text;ctx.textAlign='left';
-  ctx.font='1000 110px system-ui';ctx.fillText(String(p.ovr),70,230);
-  ctx.font='900 42px system-ui';ctx.fillText(p.position,82,285);
+  // Left meta column (FIFA-like)
+  ctx.fillStyle=t.text;
+  ctx.textAlign='left';
+  ctx.font='1000 126px system-ui';
+  ctx.fillText(String(p.ovr),88,182);
+  ctx.fillStyle=t.text2;
+  ctx.font='900 42px system-ui';
+  ctx.fillText(p.position,98,232);
 
-  // Portrait area
+  drawMiniLabel(ctx,88,258,112,42,'SA', style==='gold'?'rgba(255,255,255,.55)':'rgba(255,255,255,.16)', t.text, 'rgba(255,255,255,.22)');
+  drawMiniLabel(ctx,88,312,146,46,'VOLTK', style==='gold'?'rgba(255,255,255,.55)':'rgba(255,255,255,.18)', t.text, 'rgba(255,255,255,.22)');
+  if(p.episode){
+    drawMiniLabel(ctx,88,370,170,42,p.episode.slice(0,14), 'rgba(0,0,0,.18)', t.text, 'rgba(255,255,255,.18)');
+  }
+
+  // portrait silhouette area
+  const px=225, py=95, pw=560, ph=690;
   ctx.save();
-  ctx.beginPath();ctx.roundRect(310,120,510,600,34);ctx.clip();
+  drawCardShape(ctx,x,y,w,h,44);
+  ctx.clip();
+
+  // player glow behind portrait
+  const halo=ctx.createRadialGradient(px+pw*0.56, py+ph*0.42, 30, px+pw*0.56, py+ph*0.42, 260);
+  halo.addColorStop(0,t.glow);
+  halo.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=halo;
+  ctx.fillRect(px-30,py-20,pw+60,ph+40);
+
   if(photoImage){
-    const box={x:310,y:120,w:510,h:600};
-    const scale=Math.max(box.w/photoImage.width,box.h/photoImage.height);
-    const w=photoImage.width*scale,h=photoImage.height*scale;
-    ctx.drawImage(photoImage, box.x+(box.w-w)/2, box.y+(box.h-h)/2, w,h);
-  }else{
-    const pg=ctx.createLinearGradient(310,120,820,720);pg.addColorStop(0,'#1b2934');pg.addColorStop(1,'#0e141b');
-    ctx.fillStyle=pg;ctx.fillRect(310,120,510,600);
-    ctx.fillStyle='#516273';ctx.font='900 170px system-ui';ctx.textAlign='center';ctx.fillText('⚽',565,470);
+    const scale=Math.max(pw/photoImage.width, ph/photoImage.height);
+    const iw=photoImage.width*scale, ih=photoImage.height*scale;
+    const ix=px+(pw-iw)/2+20;
+    const iy=py+(ph-ih)/2+18;
+    ctx.shadowColor='rgba(0,0,0,.24)';
+    ctx.shadowBlur=18; ctx.shadowOffsetY=12;
+    ctx.drawImage(photoImage, ix, iy, iw, ih);
+    ctx.shadowBlur=0; ctx.shadowOffsetY=0;
+  } else {
+    const pg=ctx.createLinearGradient(px,py,px,py+ph);
+    pg.addColorStop(0,'rgba(255,255,255,.22)');
+    pg.addColorStop(1,'rgba(255,255,255,.02)');
+    ctx.fillStyle=pg;
+    ctx.beginPath();
+    ctx.ellipse(px+pw*0.57, py+ph*0.47, 165, 245, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.22)';
+    ctx.beginPath();
+    ctx.arc(px+pw*0.57, py+ph*0.29, 84, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillRect(px+pw*0.57-115, py+ph*0.42, 230, 250);
+    ctx.fillStyle='rgba(255,255,255,.6)';
+    ctx.font='900 80px system-ui';
+    ctx.textAlign='center';
+    ctx.fillText('⚽', px+pw*0.57, py+ph*0.47);
   }
   ctx.restore();
 
-  // Name panel
-  ctx.fillStyle='rgba(0,0,0,.38)';ctx.fillRect(80,745,740,115);
-  ctx.fillStyle=t.text;ctx.textAlign='center';ctx.font='1000 54px system-ui';ctx.fillText(p.name.toUpperCase(),450,820);
+  // Name plate
+  const plateY=812;
+  drawRoundedRect(ctx,92,plateY,716,76,20,'rgba(255,255,255,.14)','rgba(255,255,255,.22)',2);
+  const nameSize=fitText(ctx,String(p.name).toUpperCase(),650,46,'1000');
+  ctx.fillStyle=t.text;
+  ctx.textAlign='center';
+  ctx.font=`1000 ${nameSize}px system-ui`;
+  ctx.fillText(String(p.name).toUpperCase(),450,plateY+49);
 
-  // Stats
+  // Footer stats panel
+  drawRoundedRect(ctx,108,912,684,180,26,'rgba(255,255,255,.12)','rgba(255,255,255,.18)',2);
+  ctx.strokeStyle='rgba(255,255,255,.14)';
+  ctx.lineWidth=2;
+  ctx.beginPath();
+  ctx.moveTo(450,936); ctx.lineTo(450,1066);
+  ctx.moveTo(126,1002); ctx.lineTo(774,1002);
+  ctx.stroke();
+
   const stats=[['PAC',p.ratings.PAC],['SHO',p.ratings.SHO],['PAS',p.ratings.PAS],['DRI',p.ratings.DRI],['DEF',p.ratings.DEF],['PHY',p.ratings.PHY]];
-  const cols=[205,450,695], rows=[930,1040];
+  const positions=[
+    [205,977],[352,977],[500,977],
+    [205,1045],[352,1045],[500,1045]
+  ];
   stats.forEach((s,i)=>{
-    const c=i%3,r=Math.floor(i/3);
-    ctx.fillStyle=t.accent;ctx.textAlign='center';ctx.font='1000 48px system-ui';ctx.fillText(String(s[1]),cols[c]-45,rows[r]);
-    ctx.fillStyle=t.text;ctx.textAlign='left';ctx.font='900 30px system-ui';ctx.fillText(s[0],cols[c]+5,rows[r]);
+    const [tx,ty]=positions[i];
+    ctx.fillStyle=t.text;
+    ctx.textAlign='right';
+    ctx.font='1000 39px system-ui';
+    ctx.fillText(String(s[1]),tx,ty);
+    ctx.textAlign='left';
+    ctx.font='900 27px system-ui';
+    ctx.fillStyle=t.text2;
+    ctx.fillText(s[0],tx+18,ty);
   });
 
-  ctx.fillStyle=t.accent2;ctx.textAlign='center';ctx.font='700 22px system-ui';ctx.fillText('FOOTBALL LAB • PLAYER TEST CARD',450,1120);
+  // Small footer line
+  ctx.fillStyle=t.text2;
+  ctx.textAlign='center';
+  ctx.font='800 20px system-ui';
+  ctx.fillText('VOLTK FOOTBALL LAB • FIFA-INSPIRED CARD',450,1118);
 }
+
 function downloadCard(){
   drawPlayerCard();
   const a=document.createElement('a');
