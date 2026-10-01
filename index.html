@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#0b0f14" />
+<title>VOLTK Football Lab</title>
+<style>
+  :root{
+    --bg:#080b10;
+    --panel:#101720;
+    --panel2:#151f2b;
+    --line:#263241;
+    --text:#f6f8fb;
+    --muted:#92a0b2;
+    --accent:#d7ff39;
+    --accent2:#54e7ff;
+    --danger:#ff5e75;
+    --good:#4ce39a;
+    --gold:#ffd66b;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;
+    background:
+      radial-gradient(circle at 10% 0%, rgba(84,231,255,.09), transparent 30%),
+      radial-gradient(circle at 100% 0%, rgba(215,255,57,.08), transparent 28%),
+      var(--bg);
+    color:var(--text);
+    min-height:100vh;
+  }
+  button,input,select{font:inherit}
+  .app{max-width:1180px;margin:auto;padding:18px}
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:16px 18px;border:1px solid var(--line);border-radius:24px;
+    background:rgba(16,23,32,.92);position:sticky;top:8px;z-index:10;
+    backdrop-filter:blur(14px);
+  }
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo{
+    width:48px;height:48px;border-radius:16px;display:grid;place-items:center;
+    font-weight:900;color:#071018;background:linear-gradient(135deg,var(--accent),var(--accent2));
+    box-shadow:0 0 30px rgba(84,231,255,.18)
+  }
+  .brand h1{font-size:18px;margin:0}
+  .brand small{color:var(--muted)}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap}
+  .tabs button,.btn{
+    border:1px solid var(--line);background:#111924;color:var(--text);
+    padding:10px 14px;border-radius:14px;cursor:pointer;transition:.18s
+  }
+  .tabs button:hover,.btn:hover{transform:translateY(-1px);border-color:#3c4e62}
+  .tabs button.active{background:var(--accent);color:#071018;border-color:var(--accent);font-weight:800}
+  .btn.primary{background:var(--accent);color:#081018;border-color:var(--accent);font-weight:900}
+  .btn.secondary{background:var(--accent2);color:#071018;border-color:var(--accent2);font-weight:900}
+  .btn.danger{background:#2a1118;border-color:#572534;color:#ff8fa0}
+  .page{display:none;padding:20px 0 40px}
+  .page.active{display:block}
+  .hero{
+    display:grid;grid-template-columns:1.25fr .75fr;gap:18px;margin-top:18px
+  }
+  .card{
+    border:1px solid var(--line);background:linear-gradient(180deg,rgba(19,28,39,.95),rgba(11,16,23,.95));
+    border-radius:24px;padding:20px;
+  }
+  .hero-card{
+    min-height:320px;display:flex;flex-direction:column;justify-content:center;
+    background:
+      linear-gradient(135deg,rgba(215,255,57,.12),transparent 35%),
+      linear-gradient(315deg,rgba(84,231,255,.10),transparent 35%),
+      var(--panel);
+  }
+  h2,h3{margin-top:0}
+  .hero h2{font-size:42px;line-height:1.1;margin-bottom:12px}
+  .hero p{color:var(--muted);font-size:16px;max-width:680px}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .chip{padding:8px 12px;border:1px solid var(--line);border-radius:999px;color:#cbd5df;background:#0e151e}
+  .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .mini-stat{padding:18px;border-radius:18px;background:#0c121a;border:1px solid var(--line)}
+  .mini-stat b{font-size:30px;display:block}
+  .mini-stat span{color:var(--muted);font-size:13px}
+  .section-title{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:10px 0 14px}
+  .section-title p{color:var(--muted);margin:4px 0 0}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  label{display:block;color:#c9d2dc;font-size:13px;margin-bottom:7px}
+  input,select{
+    width:100%;border:1px solid var(--line);background:#0c131c;color:var(--text);
+    border-radius:14px;padding:12px 13px;outline:none
+  }
+  input:focus,select:focus{border-color:var(--accent2)}
+  .field{margin-bottom:14px}
+  .form-section{
+    padding:16px;border:1px solid var(--line);border-radius:18px;background:#0d141d;margin-bottom:14px
+  }
+  .form-section h3{display:flex;align-items:center;justify-content:space-between;font-size:17px}
+  .badge{
+    min-width:52px;text-align:center;padding:7px 10px;border-radius:12px;
+    background:#1a2531;color:var(--accent);font-weight:900
+  }
+  .help{color:var(--muted);font-size:12px;line-height:1.6;margin-top:8px}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .ratings{
+    display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin:14px 0
+  }
+  .rating{
+    text-align:center;padding:16px 8px;border-radius:18px;background:#0b121a;border:1px solid var(--line)
+  }
+  .rating b{display:block;font-size:28px}
+  .rating span{color:var(--muted);font-size:12px}
+  .overall{
+    display:grid;place-items:center;width:110px;height:110px;border-radius:28px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));color:#071018;
+    font-weight:1000;font-size:38px;box-shadow:0 14px 50px rgba(84,231,255,.12)
+  }
+  .result-head{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+  .result-meta h2{margin-bottom:5px}
+  .result-meta p{margin:0;color:var(--muted)}
+  .challenge-card{
+    border:1px solid var(--line);border-radius:22px;padding:18px;background:#0d141c;
+    min-height:220px
+  }
+  .challenge-card .tag{color:#081018;background:var(--accent);font-weight:900;padding:6px 9px;border-radius:10px;display:inline-block;margin-bottom:12px}
+  .challenge-card ul{padding-right:18px;color:#d7dee6;line-height:1.85}
+  .score-box{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--line)}
+  .score-box b{color:var(--gold)}
+  .card-maker{display:grid;grid-template-columns:420px 1fr;gap:18px}
+  canvas{width:100%;height:auto;border-radius:24px;border:1px solid var(--line);background:#0a0f15}
+  .leaderboard-row,.history-row{
+    display:grid;grid-template-columns:60px 1.5fr .8fr repeat(6,.6fr);gap:8px;align-items:center;
+    padding:12px;border-bottom:1px solid #202b37
+  }
+  .leaderboard-row.header{color:var(--muted);font-size:12px}
+  .leaderboard-row strong{font-size:18px}
+  .rank{
+    width:34px;height:34px;border-radius:12px;background:#18222e;display:grid;place-items:center;font-weight:900
+  }
+  .empty{padding:30px;text-align:center;color:var(--muted)}
+  .notice{padding:12px 14px;border-radius:14px;background:#111a24;border:1px solid var(--line);color:#b8c4d0;font-size:13px;line-height:1.65}
+  .footer{color:#68778a;text-align:center;font-size:12px;padding:24px}
+  @media(max-width:900px){
+    .topbar{position:relative;top:auto;align-items:flex-start;flex-direction:column}
+    .hero,.grid,.card-maker{grid-template-columns:1fr}
+    .grid3{grid-template-columns:1fr 1fr}
+    .ratings{grid-template-columns:repeat(3,1fr)}
+    .leaderboard-row{grid-template-columns:50px 1fr .7fr}
+    .leaderboard-row span:nth-child(n+4){display:none}
+    .hero h2{font-size:32px}
+  }
+  @media(max-width:520px){
+    .app{padding:10px}
+    .grid3{grid-template-columns:1fr}
+    .tabs{width:100%}
+    .tabs button{flex:1 1 30%}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">V</div>
+      <div>
+        <h1>VOLTK Football Lab</h1>
+        <small>اختبر اللاعب • احسب الطاقات • اصنع البطاقة</small>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="active" data-page="home">الرئيسية</button>
+      <button data-page="test">اختبار لاعب</button>
+      <button data-page="challenges">التحديات</button>
+      <button data-page="results">النتيجة</button>
+      <button data-page="studio">صانع البطاقة</button>
+      <button data-page="players">اللاعبون</button>
+    </div>
+  </div>
+
+  <section id="home" class="page active">
+    <div class="hero">
+      <div class="card hero-card">
+        <div class="chip" style="width:max-content">نسخة شخصية تعمل محليًا</div>
+        <h2>حوّل تحدياتك الكروية<br>إلى بطاقة لاعب حقيقية.</h2>
+        <p>أدخل نتائج الاختبارات، دع البرنامج يحسب PAC / SHO / PAS / DRI / DEF / PHY، ثم اصنع بطاقة خاصة بالقناة واحفظ تاريخ كل لاعب وترتيبه.</p>
+        <div class="actions">
+          <button class="btn primary" onclick="openPage('test')">ابدأ اختبار لاعب</button>
+          <button class="btn" onclick="openPage('challenges')">ولّد تحديًا</button>
+        </div>
+        <div class="chips">
+          <span class="chip">لا يحتاج إنترنت</span>
+          <span class="chip">يحفظ النتائج على الجهاز</span>
+          <span class="chip">تصدير البطاقة PNG</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>ملخص سريع</h3>
+        <div class="stat-grid">
+          <div class="mini-stat"><b id="homePlayers">0</b><span>لاعب</span></div>
+          <div class="mini-stat"><b id="homeBest">—</b><span>أعلى OVR</span></div>
+          <div class="mini-stat"><b id="homeTests">0</b><span>اختبار محفوظ</span></div>
+        </div>
+        <div class="notice" style="margin-top:14px">
+          التقييم ليس “نسبة نجاح = طاقة”. كل طاقة تُحسب من أكثر من مؤشر، ثم يُحسب الـ OVR بأوزان مختلفة حسب مركز اللاعب.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="test" class="page">
+    <div class="section-title">
+      <div><h2>اختبار لاعب جديد</h2><p>أدخل النتائج الفعلية، والبرنامج يحوّلها إلى طاقات من 1 إلى 99.</p></div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>بيانات اللاعب</h3>
+        <div class="grid3">
+          <div class="field"><label>اسم اللاعب</label><input id="playerName" placeholder="مثال: Rayan"></div>
+          <div class="field"><label>المركز</label>
+            <select id="position">
+              <option>ST</option><option>LW</option><option>RW</option><option>CAM</option>
+              <option>CM</option><option>CDM</option><option>LB</option><option>RB</option><option>CB</option>
+            </select>
+          </div>
+          <div class="field"><label>العمر</label><input id="age" type="number" min="8" max="60" placeholder="20"></div>
+        </div>
+        <div class="field"><label>ملاحظة / اسم الحلقة</label><input id="episode" placeholder="مثال: تحدي الحلقة 01"></div>
+      </div>
+
+      <div class="card">
+        <h3>فكرة القياس</h3>
+        <div class="notice">
+          الزمن الأقل أفضل في اختبارات السرعة والمراوغة. أما الدقة والنجاح فأدخلها من 0 إلى 10. القيم تُطبع على نطاق عملي للهواة وصناع المحتوى، وليست قياسًا احترافيًا مخبريًا.
+        </div>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:16px">
+      <div>
+        <div class="form-section">
+          <h3>PAC السرعة <span class="badge" id="pacPreview">—</span></h3>
+          <div class="grid3">
+            <div class="field"><label>30m Sprint — ثانية</label><input id="sprint30" type="number" step=".01" value="4.80"></div>
+            <div class="field"><label>10m Acceleration — ثانية</label><input id="sprint10" type="number" step=".01" value="1.95"></div>
+            <div class="field"><label>Agility Shuttle — ثانية</label><input id="agility" type="number" step=".01" value="8.80"></div>
+          </div>
+          <div class="help">PAC = 45% سرعة 30م + 35% تسارع 10م + 20% رشاقة.</div>
+        </div>
+
+        <div class="form-section">
+          <h3>SHO التسديد <span class="badge" id="shoPreview">—</span></h3>
+          <div class="grid3">
+            <div class="field"><label>Finishing /10</label><input id="finishing" type="number" min="0" max="10" value="7"></div>
+            <div class="field"><label>Corner Accuracy /10</label><input id="shotAccuracy" type="number" min="0" max="10" value="6"></div>
+            <div class="field"><label>Long Shots /10</label><input id="longShots" type="number" min="0" max="10" value="6"></div>
+            <div class="field"><label>Weak Foot /10</label><input id="weakFoot" type="number" min="0" max="10" value="5"></div>
+            <div class="field"><label>Pressure Shooting /10</label><input id="pressureShot" type="number" min="0" max="10" value="6"></div>
+          </div>
+          <div class="help">SHO = 30% إنهاء + 25% دقة + 20% تسديد بعيد + 15% قدم ضعيفة + 10% تحت الضغط.</div>
+        </div>
+
+        <div class="form-section">
+          <h3>PAS التمرير <span class="badge" id="pasPreview">—</span></h3>
+          <div class="grid3">
+            <div class="field"><label>Short Passing /10</label><input id="shortPass" type="number" min="0" max="10" value="7"></div>
+            <div class="field"><label>Long Passing /10</label><input id="longPass" type="number" min="0" max="10" value="6"></div>
+            <div class="field"><label>Moving Pass /10</label><input id="movingPass" type="number" min="0" max="10" value="6"></div>
+            <div class="field"><label>Through Balls /10</label><input id="throughPass" type="number" min="0" max="10" value="6"></div>
+          </div>
+          <div class="help">PAS = 35% قصير + 30% طويل + 20% أثناء الحركة + 15% تمرير بيني.</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="form-section">
+          <h3>DRI المراوغة <span class="badge" id="driPreview">—</span></h3>
+          <div class="grid3">
+            <div class="field"><label>Slalom — ثانية</label><input id="slalom" type="number" step=".01" value="13.20"></div>
+            <div class="field"><label>Ball Control /10</label><input id="ballControl" type="number" min="0" max="10" value="7"></div>
+            <div class="field"><label>1v1 Success /10</label><input id="oneVOne" type="number" min="0" max="10" value="6"></div>
+            <div class="field"><label>Clean Run /10</label><input id="cleanRun" type="number" min="0" max="10" value="7"></div>
+          </div>
+          <div class="help">DRI = 35% زمن السلالوم + 30% تحكم + 20% 1v1 + 15% نظافة التنفيذ.</div>
+        </div>
+
+        <div class="form-section">
+          <h3>DEF الدفاع <span class="badge" id="defPreview">—</span></h3>
+          <div class="grid3">
+            <div class="field"><label>Tackles /10</label><input id="tackles" type="number" min="0" max="10" value="5"></div>
+            <div class="field"><label>Interceptions /10</label><input id="interceptions" type="number" min="0" max="10" value="5"></div>
+            <div class="field"><label>Defensive Duels /10</label><input id="defDuels" type="number" min="0" max="10" value="5"></div>
+          </div>
+          <div class="help">DEF = 40% افتكاك + 35% قطع + 25% التحامات دفاعية.</div>
+        </div>
+
+        <div class="form-section">
+          <h3>PHY البدنية <span class="badge" id="phyPreview">—</span></h3>
+          <div class="grid3">
+            <div class="field"><label>Stamina /10</label><input id="stamina" type="number" min="0" max="10" value="7"></div>
+            <div class="field"><label>Strength /10</label><input id="strength" type="number" min="0" max="10" value="6"></div>
+            <div class="field"><label>Balance /10</label><input id="balance" type="number" min="0" max="10" value="7"></div>
+          </div>
+          <div class="help">PHY = 40% تحمل + 35% قوة + 25% توازن.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" onclick="calculateAndSave()">احسب واحفظ النتيجة</button>
+      <button class="btn" onclick="previewRatings()">تحديث المعاينة فقط</button>
+      <button class="btn danger" onclick="resetForm()">مسح الحقول</button>
+    </div>
+  </section>
+
+  <section id="challenges" class="page">
+    <div class="section-title">
+      <div><h2>مولّد التحديات الذكي</h2><p>يعمل محليًا بدون API. كل مرة يولّد لك اختبارًا مختلفًا بدرجات وصعوبة واضحة.</p></div>
+    </div>
+    <div class="card">
+      <div class="grid3">
+        <div class="field"><label>نوع المهارة</label>
+          <select id="challengeSkill">
+            <option value="shooting">التسديد</option>
+            <option value="dribbling">المراوغة</option>
+            <option value="passing">التمرير</option>
+            <option value="pace">السرعة</option>
+            <option value="defending">الدفاع</option>
+            <option value="physical">البدنية</option>
+          </select>
+        </div>
+        <div class="field"><label>الصعوبة</label>
+          <select id="challengeLevel">
+            <option value="easy">سهل</option>
+            <option value="medium" selected>متوسط</option>
+            <option value="hard">صعب</option>
+            <option value="elite">نخبوي</option>
+          </select>
+        </div>
+        <div class="field"><label>نمط التحدي</label>
+          <select id="challengeMode">
+            <option value="solo">فردي</option>
+            <option value="duel">Head-to-Head</option>
+            <option value="timed">تحت الوقت</option>
+          </select>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn primary" onclick="generateChallenge()">ولّد تحديًا</button>
+        <button class="btn" onclick="harderChallenge()">خلّه أصعب</button>
+        <button class="btn" onclick="easierChallenge()">خلّه أسهل</button>
+      </div>
+    </div>
+    <div id="challengeOutput" class="challenge-card" style="margin-top:16px">
+      <div class="empty">اختر المهارة ثم اضغط “ولّد تحديًا”.</div>
+    </div>
+  </section>
+
+  <section id="results" class="page">
+    <div class="section-title">
+      <div><h2>النتيجة الحالية</h2><p>آخر لاعب تم حسابه.</p></div>
+    </div>
+    <div id="resultBox" class="card">
+      <div class="empty">لا توجد نتيجة بعد. نفّذ اختبار لاعب أولًا.</div>
+    </div>
+  </section>
+
+  <section id="studio" class="page">
+    <div class="section-title">
+      <div><h2>صانع البطاقة</h2><p>ارفع صورة اللاعب واختر آخر نتيجة ثم صدّر البطاقة PNG.</p></div>
+    </div>
+    <div class="card-maker">
+      <div>
+        <canvas id="playerCard" width="900" height="1200"></canvas>
+      </div>
+      <div class="card">
+        <h3>إعدادات البطاقة</h3>
+        <div class="field"><label>اختر اللاعب</label><select id="cardPlayer" onchange="drawPlayerCard()"></select></div>
+        <div class="field"><label>صورة اللاعب</label><input id="playerPhoto" type="file" accept="image/*"></div>
+        <div class="field"><label>ستايل البطاقة</label>
+          <select id="cardStyle" onchange="drawPlayerCard()">
+            <option value="volt">VOLTK Neon</option>
+            <option value="gold">Elite Gold</option>
+            <option value="ice">Ice Blue</option>
+          </select>
+        </div>
+        <div class="notice">
+          للحفاظ على البرنامج كملف HTML واحد بدون خدمات خارجية، يتم إدخال الصورة داخل البطاقة كما هي مع قص احترافي. إزالة الخلفية تلقائيًا تحتاج خدمة أو نموذج AI منفصل.
+        </div>
+        <div class="actions">
+          <button class="btn secondary" onclick="drawPlayerCard()">تحديث البطاقة</button>
+          <button class="btn primary" onclick="downloadCard()">تنزيل PNG</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="players" class="page">
+    <div class="section-title">
+      <div><h2>اللاعبون وLeaderboard</h2><p>كل النتائج المحفوظة على هذا الجهاز.</p></div>
+      <button class="btn danger" onclick="clearAllPlayers()">مسح كل السجل</button>
+    </div>
+    <div class="card">
+      <div class="leaderboard-row header">
+        <span>#</span><span>اللاعب</span><span>OVR</span><span>PAC</span><span>SHO</span><span>PAS</span><span>DRI</span><span>DEF</span><span>PHY</span>
+      </div>
+      <div id="leaderboard"></div>
+    </div>
+  </section>
+
+  <div class="footer">VOLTK Football Lab • Personal HTML App</div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let players = JSON.parse(localStorage.getItem('voltk_players') || '[]');
+let currentResult = players[players.length - 1] || null;
+let photoImage = null;
+
+document.querySelectorAll('.tabs button').forEach(btn=>{
+  btn.addEventListener('click',()=>openPage(btn.dataset.page));
+});
+function openPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));
+  $(id).classList.add('active');
+  const tab=[...document.querySelectorAll('.tabs button')].find(b=>b.dataset.page===id);
+  if(tab) tab.classList.add('active');
+  if(id==='players') renderLeaderboard();
+  if(id==='studio'){ refreshCardPlayers(); drawPlayerCard(); }
+  if(id==='results') renderResult();
+  if(id==='home') renderHome();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function clamp(n,min=1,max=99){ return Math.max(min,Math.min(max,Math.round(n))); }
+function score10(v){ return clamp((Number(v)||0)*9.8 + 1); }
+function inverseTime(value, best, worst){
+  const v=Number(value)||worst;
+  const ratio=(worst-v)/(worst-best);
+  return clamp(35 + ratio*64);
+}
+
+function getRatings(){
+  const pac = clamp(
+    inverseTime($('sprint30').value,3.65,6.20)*.45 +
+    inverseTime($('sprint10').value,1.55,2.60)*.35 +
+    inverseTime($('agility').value,6.8,11.8)*.20
+  );
+
+  const sho = clamp(
+    score10($('finishing').value)*.30 +
+    score10($('shotAccuracy').value)*.25 +
+    score10($('longShots').value)*.20 +
+    score10($('weakFoot').value)*.15 +
+    score10($('pressureShot').value)*.10
+  );
+
+  const pas = clamp(
+    score10($('shortPass').value)*.35 +
+    score10($('longPass').value)*.30 +
+    score10($('movingPass').value)*.20 +
+    score10($('throughPass').value)*.15
+  );
+
+  const dri = clamp(
+    inverseTime($('slalom').value,8.5,18.0)*.35 +
+    score10($('ballControl').value)*.30 +
+    score10($('oneVOne').value)*.20 +
+    score10($('cleanRun').value)*.15
+  );
+
+  const def = clamp(
+    score10($('tackles').value)*.40 +
+    score10($('interceptions').value)*.35 +
+    score10($('defDuels').value)*.25
+  );
+
+  const phy = clamp(
+    score10($('stamina').value)*.40 +
+    score10($('strength').value)*.35 +
+    score10($('balance').value)*.25
+  );
+
+  return {PAC:pac, SHO:sho, PAS:pas, DRI:dri, DEF:def, PHY:phy};
+}
+
+const posWeights = {
+  ST:{PAC:.18,SHO:.34,PAS:.12,DRI:.20,DEF:.03,PHY:.13},
+  LW:{PAC:.25,SHO:.22,PAS:.16,DRI:.26,DEF:.02,PHY:.09},
+  RW:{PAC:.25,SHO:.22,PAS:.16,DRI:.26,DEF:.02,PHY:.09},
+  CAM:{PAC:.10,SHO:.18,PAS:.29,DRI:.27,DEF:.04,PHY:.12},
+  CM:{PAC:.08,SHO:.11,PAS:.28,DRI:.21,DEF:.14,PHY:.18},
+  CDM:{PAC:.08,SHO:.05,PAS:.20,DRI:.12,DEF:.31,PHY:.24},
+  LB:{PAC:.20,SHO:.04,PAS:.15,DRI:.12,DEF:.27,PHY:.22},
+  RB:{PAC:.20,SHO:.04,PAS:.15,DRI:.12,DEF:.27,PHY:.22},
+  CB:{PAC:.10,SHO:.02,PAS:.09,DRI:.06,DEF:.39,PHY:.34},
+};
+function calcOVR(ratings,pos){
+  const w=posWeights[pos]||posWeights.CM;
+  let total=0;
+  Object.keys(w).forEach(k=>total+=ratings[k]*w[k]);
+  return clamp(total);
+}
+function previewRatings(){
+  const r=getRatings();
+  $('pacPreview').textContent=r.PAC;
+  $('shoPreview').textContent=r.SHO;
+  $('pasPreview').textContent=r.PAS;
+  $('driPreview').textContent=r.DRI;
+  $('defPreview').textContent=r.DEF;
+  $('phyPreview').textContent=r.PHY;
+}
+document.querySelectorAll('#test input,#test select').forEach(el=>el.addEventListener('input',previewRatings));
+previewRatings();
+
+function calculateAndSave(){
+  const name=$('playerName').value.trim();
+  if(!name){ alert('اكتب اسم اللاعب أولًا.'); return; }
+  const ratings=getRatings();
+  const pos=$('position').value;
+  const result={
+    id:Date.now(),
+    name,
+    position:pos,
+    age:$('age').value||'',
+    episode:$('episode').value.trim(),
+    ratings,
+    ovr:calcOVR(ratings,pos),
+    createdAt:new Date().toLocaleString('ar-SA')
+  };
+  players.push(result);
+  localStorage.setItem('voltk_players',JSON.stringify(players));
+  currentResult=result;
+  refreshCardPlayers();
+  renderResult();
+  renderHome();
+  openPage('results');
+}
+
+function renderResult(){
+  if(!currentResult){
+    $('resultBox').innerHTML='<div class="empty">لا توجد نتيجة بعد. نفّذ اختبار لاعب أولًا.</div>'; return;
+  }
+  const r=currentResult.ratings;
+  $('resultBox').innerHTML=`
+    <div class="result-head">
+      <div class="overall">${currentResult.ovr}</div>
+      <div class="result-meta">
+        <h2>${escapeHtml(currentResult.name)}</h2>
+        <p>${currentResult.position}${currentResult.age?' • العمر '+currentResult.age:''}${currentResult.episode?' • '+escapeHtml(currentResult.episode):''}</p>
+        <p style="margin-top:6px">${currentResult.createdAt}</p>
+      </div>
+    </div>
+    <div class="ratings">
+      ${Object.entries(r).map(([k,v])=>`<div class="rating"><b>${v}</b><span>${k}</span></div>`).join('')}
+    </div>
+    <div class="actions">
+      <button class="btn primary" onclick="openPage('studio')">اصنع البطاقة</button>
+      <button class="btn" onclick="openPage('test')">اختبار لاعب آخر</button>
+    </div>`;
+}
+
+function renderHome(){
+  $('homePlayers').textContent=players.length;
+  $('homeTests').textContent=players.length;
+  $('homeBest').textContent=players.length ? Math.max(...players.map(p=>p.ovr)) : '—';
+}
+function renderLeaderboard(){
+  const sorted=[...players].sort((a,b)=>b.ovr-a.ovr);
+  $('leaderboard').innerHTML=sorted.length?sorted.map((p,i)=>`
+    <div class="leaderboard-row">
+      <span class="rank">${i+1}</span>
+      <span><strong>${escapeHtml(p.name)}</strong><br><small style="color:#738399">${p.position} • ${p.createdAt}</small></span>
+      <span><strong>${p.ovr}</strong></span>
+      <span>${p.ratings.PAC}</span><span>${p.ratings.SHO}</span><span>${p.ratings.PAS}</span>
+      <span>${p.ratings.DRI}</span><span>${p.ratings.DEF}</span><span>${p.ratings.PHY}</span>
+    </div>`).join(''):'<div class="empty">لا يوجد لاعبين محفوظين بعد.</div>';
+}
+function clearAllPlayers(){
+  if(!confirm('متأكد من مسح جميع اللاعبين والنتائج؟')) return;
+  players=[];currentResult=null;localStorage.removeItem('voltk_players');
+  renderLeaderboard();renderHome();refreshCardPlayers();drawPlayerCard();
+}
+function resetForm(){
+  if(!confirm('مسح بيانات النموذج الحالية؟')) return;
+  $('playerName').value='';$('age').value='';$('episode').value='';
+}
+
+const challengeDB = {
+  shooting:{
+    title:'تحدي التسديد',
+    tasks:[
+      'سدد 10 كرات: 5 بالقدم القوية و5 بالقدم الضعيفة.',
+      'وزّع 12 تسديدة على أربع زوايا مختلفة للمرمى.',
+      'استلم الكرة ثم سدد خلال 3 ثوانٍ بحد أقصى.',
+      'نفّذ 8 تسديدات من خارج المنطقة و4 من داخلها.',
+      'ضع 4 أهداف صغيرة داخل المرمى واضرب كل هدف مرتين.'
+    ],
+    metrics:['دقة الإصابة','التسديد بالقدم الضعيفة','سرعة التنفيذ']
+  },
+  dribbling:{
+    title:'تحدي المراوغة',
+    tasks:[
+      'اعمل Slalom من 8 أقماع ذهابًا وإيابًا.',
+      'مراوغة 1v1 داخل ممر ضيق ثم إنهاء على مرمى صغير.',
+      'تحكم بالكرة خلال مسار متعرج دون لمس أي مخروط.',
+      'نفّذ 3 جولات مراوغة وسجّل أفضل زمن.',
+      'غيّر الاتجاه 6 مرات داخل مربع 10×10 م دون فقدان الكرة.'
+    ],
+    metrics:['الزمن','عدد الأخطاء','التحكم']
+  },
+  passing:{
+    title:'تحدي التمرير',
+    tasks:[
+      '20 تمريرة قصيرة على هدف بعرض متر واحد.',
+      '10 تمريرات طويلة نحو منطقتين مختلفتين.',
+      'مرر أثناء الحركة بعد لمس الكرة لمستين فقط.',
+      'نفّذ 8 Through Balls إلى ممر متحرك.',
+      'بدّل اللعب من جهة إلى جهة 10 مرات بدقة.'
+    ],
+    metrics:['الدقة','التنوع','السرعة']
+  },
+  pace:{
+    title:'تحدي السرعة',
+    tasks:[
+      '3 محاولات Sprint لمسافة 30 متر وخذ أفضل زمن.',
+      '5 انطلاقات 10 أمتار من وضع الثبات.',
+      'Shuttle Run بين 4 نقاط مع تغيير اتجاه سريع.',
+      'سباق 20 متر بالكرة ثم 20 متر بدون كرة.',
+      'انطلاقة رد فعل بعد إشارة صوتية عشوائية.'
+    ],
+    metrics:['الزمن','التسارع','تغيير الاتجاه']
+  },
+  defending:{
+    title:'تحدي الدفاع',
+    tasks:[
+      '10 مواجهات 1v1 داخل ممر محدود.',
+      'قطع 10 تمريرات موجهة إلى ثلاث زوايا.',
+      'توقيت تدخل بدون خطأ ضد لاعب مهاجم.',
+      'دافع عن مرمى صغير لمدة 45 ثانية.',
+      'اختبر الوقفة الدفاعية وتغيير الاتجاه أمام مراوغ.'
+    ],
+    metrics:['الافتكاك','التمركز','قلة الأخطاء']
+  },
+  physical:{
+    title:'تحدي البدنية',
+    tasks:[
+      'جولات Shuttle متتالية مع راحة قصيرة.',
+      '10 التحامات كتف قانونية على الكرة.',
+      'اختبار توازن على قدم واحدة بعد Sprint قصير.',
+      '4 جولات: Sprint ثم تغيير اتجاه ثم تمريرة.',
+      'تحدي تحمل 90 ثانية بالكرة دون توقف.'
+    ],
+    metrics:['التحمل','القوة','التوازن']
+  }
+};
+const levelCfg={
+  easy:{label:'سهل',mult:1, rounds:1, time:45},
+  medium:{label:'متوسط',mult:1.25,rounds:2,time:35},
+  hard:{label:'صعب',mult:1.5,rounds:3,time:25},
+  elite:{label:'نخبوي',mult:1.8,rounds:4,time:18}
+};
+function generateChallenge(){
+  const skill=$('challengeSkill').value;
+  const level=$('challengeLevel').value;
+  const mode=$('challengeMode').value;
+  const db=challengeDB[skill], cfg=levelCfg[level];
+  const shuffled=[...db.tasks].sort(()=>Math.random()-.5);
+  const tasks=shuffled.slice(0,Math.min(3,cfg.rounds+1));
+  const modeText=mode==='duel'?'يتنافس لاعبان، والفائز هو الأعلى نقاطًا.':
+                 mode==='timed'?`ينتهي التحدي بعد ${cfg.time} ثانية لكل جولة.`:
+                 'ينفذ اللاعب الجولات منفردًا ويتم تسجيل أفضل نتيجة.';
+  const maxScore=Math.round(20*cfg.mult);
+  $('challengeOutput').innerHTML=`
+    <span class="tag">${db.title} • ${cfg.label}</span>
+    <h3>${mode==='duel'?'Head-to-Head Challenge':mode==='timed'?'Timed Challenge':'Player Test Challenge'}</h3>
+    <ul>${tasks.map(t=>`<li>${t}</li>`).join('')}</ul>
+    <p style="color:#9fb0c0">${modeText}</p>
+    <div class="chips">${db.metrics.map(m=>`<span class="chip">${m}</span>`).join('')}</div>
+    <div class="score-box"><span>Maximum Score</span><b>${maxScore} نقطة</b></div>`;
+}
+function harderChallenge(){
+  const s=$('challengeLevel');
+  const levels=['easy','medium','hard','elite'];
+  s.value=levels[Math.min(levels.indexOf(s.value)+1,3)];
+  generateChallenge();
+}
+function easierChallenge(){
+  const s=$('challengeLevel');
+  const levels=['easy','medium','hard','elite'];
+  s.value=levels[Math.max(levels.indexOf(s.value)-1,0)];
+  generateChallenge();
+}
+
+function refreshCardPlayers(){
+  const sel=$('cardPlayer');
+  if(!sel) return;
+  sel.innerHTML=players.length?players.map(p=>`<option value="${p.id}">${escapeHtml(p.name)} — ${p.position} — ${p.ovr}</option>`).join(''):'<option>لا يوجد لاعب</option>';
+  if(currentResult && players.some(p=>p.id===currentResult.id)) sel.value=currentResult.id;
+}
+$('playerPhoto').addEventListener('change',e=>{
+  const file=e.target.files[0]; if(!file) return;
+  const img=new Image();
+  img.onload=()=>{photoImage=img;drawPlayerCard()};
+  img.src=URL.createObjectURL(file);
+});
+
+function hexRoundRect(ctx,x,y,w,h,r,fill,stroke){
+  ctx.beginPath();
+  ctx.roundRect(x,y,w,h,r);
+  if(fill){ctx.fillStyle=fill;ctx.fill()}
+  if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=3;ctx.stroke()}
+}
+function drawPlayerCard(){
+  const canvas=$('playerCard'), ctx=canvas.getContext('2d');
+  const id=Number($('cardPlayer').value);
+  const p=players.find(x=>x.id===id)||currentResult;
+  const style=$('cardStyle').value;
+  const themes={
+    volt:{bg1:'#0a111a',bg2:'#142b2d',accent:'#d7ff39',accent2:'#54e7ff',text:'#f5fbff'},
+    gold:{bg1:'#17120a',bg2:'#3a2b0f',accent:'#ffd76a',accent2:'#f3a742',text:'#fff7df'},
+    ice:{bg1:'#0a1118',bg2:'#0d2e47',accent:'#9feaff',accent2:'#4eb6ff',text:'#ecfaff'}
+  };
+  const t=themes[style]||themes.volt;
+  ctx.clearRect(0,0,900,1200);
+  const g=ctx.createLinearGradient(0,0,900,1200);g.addColorStop(0,t.bg1);g.addColorStop(1,t.bg2);
+  ctx.fillStyle=g;ctx.fillRect(0,0,900,1200);
+
+  // Decorative frame
+  ctx.strokeStyle=t.accent;ctx.lineWidth=10;
+  ctx.beginPath();ctx.moveTo(120,35);ctx.lineTo(780,35);ctx.lineTo(855,150);ctx.lineTo(825,1005);ctx.lineTo(700,1160);ctx.lineTo(200,1160);ctx.lineTo(75,1005);ctx.lineTo(45,150);ctx.closePath();ctx.stroke();
+  ctx.strokeStyle=t.accent2;ctx.lineWidth=3;ctx.globalAlpha=.65;
+  ctx.strokeRect(78,92,744,980);ctx.globalAlpha=1;
+
+  ctx.fillStyle=t.accent;ctx.font='900 42px system-ui';ctx.textAlign='left';ctx.fillText('VOLTK',65,85);
+  if(!p){
+    ctx.fillStyle=t.text;ctx.font='700 42px system-ui';ctx.textAlign='center';ctx.fillText('لا توجد نتيجة بعد',450,600);return;
+  }
+
+  ctx.fillStyle=t.text;ctx.textAlign='left';
+  ctx.font='1000 110px system-ui';ctx.fillText(String(p.ovr),70,230);
+  ctx.font='900 42px system-ui';ctx.fillText(p.position,82,285);
+
+  // Portrait area
+  ctx.save();
+  ctx.beginPath();ctx.roundRect(310,120,510,600,34);ctx.clip();
+  if(photoImage){
+    const box={x:310,y:120,w:510,h:600};
+    const scale=Math.max(box.w/photoImage.width,box.h/photoImage.height);
+    const w=photoImage.width*scale,h=photoImage.height*scale;
+    ctx.drawImage(photoImage, box.x+(box.w-w)/2, box.y+(box.h-h)/2, w,h);
+  }else{
+    const pg=ctx.createLinearGradient(310,120,820,720);pg.addColorStop(0,'#1b2934');pg.addColorStop(1,'#0e141b');
+    ctx.fillStyle=pg;ctx.fillRect(310,120,510,600);
+    ctx.fillStyle='#516273';ctx.font='900 170px system-ui';ctx.textAlign='center';ctx.fillText('⚽',565,470);
+  }
+  ctx.restore();
+
+  // Name panel
+  ctx.fillStyle='rgba(0,0,0,.38)';ctx.fillRect(80,745,740,115);
+  ctx.fillStyle=t.text;ctx.textAlign='center';ctx.font='1000 54px system-ui';ctx.fillText(p.name.toUpperCase(),450,820);
+
+  // Stats
+  const stats=[['PAC',p.ratings.PAC],['SHO',p.ratings.SHO],['PAS',p.ratings.PAS],['DRI',p.ratings.DRI],['DEF',p.ratings.DEF],['PHY',p.ratings.PHY]];
+  const cols=[205,450,695], rows=[930,1040];
+  stats.forEach((s,i)=>{
+    const c=i%3,r=Math.floor(i/3);
+    ctx.fillStyle=t.accent;ctx.textAlign='center';ctx.font='1000 48px system-ui';ctx.fillText(String(s[1]),cols[c]-45,rows[r]);
+    ctx.fillStyle=t.text;ctx.textAlign='left';ctx.font='900 30px system-ui';ctx.fillText(s[0],cols[c]+5,rows[r]);
+  });
+
+  ctx.fillStyle=t.accent2;ctx.textAlign='center';ctx.font='700 22px system-ui';ctx.fillText('FOOTBALL LAB • PLAYER TEST CARD',450,1120);
+}
+function downloadCard(){
+  drawPlayerCard();
+  const a=document.createElement('a');
+  a.download=(currentResult?.name||'VOLTK-player')+'-card.png';
+  a.href=$('playerCard').toDataURL('image/png');
+  a.click();
+}
+function escapeHtml(str=''){
+  return String(str).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
+
+renderHome();
+renderLeaderboard();
+refreshCardPlayers();
+renderResult();
+drawPlayerCard();
+</script>
+</body>
+</html>
