@@ -200,23 +200,21 @@
           <div class="mini-stat"><b id="homeBest">—</b><span>أعلى OVR</span></div>
           <div class="mini-stat"><b id="homeTests">0</b><span>اختبار محفوظ</span></div>
         </div>
-        <div class="notice" style="margin-top:14px">
-          التقييم ليس “نسبة نجاح = طاقة”. كل طاقة تُحسب من أكثر من مؤشر، ثم يُحسب الـ OVR بأوزان مختلفة حسب مركز اللاعب.
-        </div>
+        <div class="notice" style="margin-top:14px">الحسبة الآن بسيطة: اختباران من 10 لكل مهارة، متوسطهما × 10، والـ OVR هو متوسط الطاقات الست.</div>
       </div>
     </div>
   </section>
 
   <section id="test" class="page">
     <div class="section-title">
-      <div><h2>اختبار لاعب جديد</h2><p>أدخل النتائج الفعلية، والبرنامج يحوّلها إلى طاقات من 1 إلى 99.</p></div>
+      <div><h2>اختبار لاعب جديد</h2><p>اختباران فقط لكل مهارة، والحسبة كلها ظاهرة بالعربي.</p></div>
     </div>
 
     <div class="grid">
       <div class="card">
         <h3>بيانات اللاعب</h3>
         <div class="grid3">
-          <div class="field"><label>اسم اللاعب</label><input id="playerName" placeholder="مثال: Rayan"></div>
+          <div class="field"><label>اسم اللاعب</label><input id="playerName" placeholder="مثال: ريان"></div>
           <div class="field"><label>المركز</label>
             <select id="position">
               <option>ST</option><option>LW</option><option>RW</option><option>CAM</option>
@@ -225,13 +223,15 @@
           </div>
           <div class="field"><label>العمر</label><input id="age" type="number" min="8" max="60" placeholder="20"></div>
         </div>
-        <div class="field"><label>ملاحظة / اسم الحلقة</label><input id="episode" placeholder="مثال: تحدي الحلقة 01"></div>
+        <div class="field"><label>اسم الحلقة / ملاحظة</label><input id="episode" placeholder="مثال: تحدي الحلقة 01"></div>
       </div>
 
       <div class="card">
-        <h3>فكرة القياس</h3>
+        <h3>طريقة الحسبة</h3>
         <div class="notice">
-          الزمن الأقل أفضل في اختبارات السرعة والمراوغة. أما الدقة والنجاح فأدخلها من 0 إلى 10. القيم تُطبع على نطاق عملي للهواة وصناع المحتوى، وليست قياسًا احترافيًا مخبريًا.
+          كل مهارة لها اختباران فقط، وكل اختبار درجته من 10.<br><br>
+          <b>طاقة المهارة = (الاختبار الأول + الاختبار الثاني) ÷ 2 × 10</b><br><br>
+          مثال: دقة التسديد 7 من 10 + التسديد البعيد 8 من 10 = <b>75 تسديد</b>.
         </div>
       </div>
     </div>
@@ -239,77 +239,67 @@
     <div class="grid" style="margin-top:16px">
       <div>
         <div class="form-section">
-          <h3>PAC السرعة <span class="badge" id="pacPreview">—</span></h3>
-          <div class="grid3">
-            <div class="field"><label>30m Sprint — ثانية</label><input id="sprint30" type="number" step=".01" value="4.80"></div>
-            <div class="field"><label>10m Acceleration — ثانية</label><input id="sprint10" type="number" step=".01" value="1.95"></div>
-            <div class="field"><label>Agility Shuttle — ثانية</label><input id="agility" type="number" step=".01" value="8.80"></div>
+          <h3>السرعة <span class="badge" id="pacPreview">—</span></h3>
+          <div class="grid">
+            <div class="field"><label>سرعة العدو من 10</label><input id="paceRun" type="number" min="0" max="10" step="1" value="7"></div>
+            <div class="field"><label>التسارع من 10</label><input id="paceAccel" type="number" min="0" max="10" step="1" value="7"></div>
           </div>
-          <div class="help">PAC = 45% سرعة 30م + 35% تسارع 10م + 20% رشاقة.</div>
+          <div class="help" id="pacCalc">الحسبة تظهر هنا.</div>
         </div>
 
         <div class="form-section">
-          <h3>SHO التسديد <span class="badge" id="shoPreview">—</span></h3>
-          <div class="grid3">
-            <div class="field"><label>Finishing /10</label><input id="finishing" type="number" min="0" max="10" value="7"></div>
-            <div class="field"><label>Corner Accuracy /10</label><input id="shotAccuracy" type="number" min="0" max="10" value="6"></div>
-            <div class="field"><label>Long Shots /10</label><input id="longShots" type="number" min="0" max="10" value="6"></div>
-            <div class="field"><label>Weak Foot /10</label><input id="weakFoot" type="number" min="0" max="10" value="5"></div>
-            <div class="field"><label>Pressure Shooting /10</label><input id="pressureShot" type="number" min="0" max="10" value="6"></div>
+          <h3>التسديد <span class="badge" id="shoPreview">—</span></h3>
+          <div class="grid">
+            <div class="field"><label>دقة التسديد من 10</label><input id="shotAccuracySimple" type="number" min="0" max="10" step="1" value="7"></div>
+            <div class="field"><label>التسديد البعيد / القوة من 10</label><input id="shotPowerSimple" type="number" min="0" max="10" step="1" value="7"></div>
           </div>
-          <div class="help">SHO = 30% إنهاء + 25% دقة + 20% تسديد بعيد + 15% قدم ضعيفة + 10% تحت الضغط.</div>
+          <div class="help" id="shoCalc">الحسبة تظهر هنا.</div>
         </div>
 
         <div class="form-section">
-          <h3>PAS التمرير <span class="badge" id="pasPreview">—</span></h3>
-          <div class="grid3">
-            <div class="field"><label>Short Passing /10</label><input id="shortPass" type="number" min="0" max="10" value="7"></div>
-            <div class="field"><label>Long Passing /10</label><input id="longPass" type="number" min="0" max="10" value="6"></div>
-            <div class="field"><label>Moving Pass /10</label><input id="movingPass" type="number" min="0" max="10" value="6"></div>
-            <div class="field"><label>Through Balls /10</label><input id="throughPass" type="number" min="0" max="10" value="6"></div>
+          <h3>التمرير <span class="badge" id="pasPreview">—</span></h3>
+          <div class="grid">
+            <div class="field"><label>التمرير القصير من 10</label><input id="passShortSimple" type="number" min="0" max="10" step="1" value="7"></div>
+            <div class="field"><label>التمرير الطويل من 10</label><input id="passLongSimple" type="number" min="0" max="10" step="1" value="7"></div>
           </div>
-          <div class="help">PAS = 35% قصير + 30% طويل + 20% أثناء الحركة + 15% تمرير بيني.</div>
+          <div class="help" id="pasCalc">الحسبة تظهر هنا.</div>
         </div>
       </div>
 
       <div>
         <div class="form-section">
-          <h3>DRI المراوغة <span class="badge" id="driPreview">—</span></h3>
-          <div class="grid3">
-            <div class="field"><label>Slalom — ثانية</label><input id="slalom" type="number" step=".01" value="13.20"></div>
-            <div class="field"><label>Ball Control /10</label><input id="ballControl" type="number" min="0" max="10" value="7"></div>
-            <div class="field"><label>1v1 Success /10</label><input id="oneVOne" type="number" min="0" max="10" value="6"></div>
-            <div class="field"><label>Clean Run /10</label><input id="cleanRun" type="number" min="0" max="10" value="7"></div>
+          <h3>المراوغة <span class="badge" id="driPreview">—</span></h3>
+          <div class="grid">
+            <div class="field"><label>التحكم بالكرة من 10</label><input id="dribbleControlSimple" type="number" min="0" max="10" step="1" value="7"></div>
+            <div class="field"><label>تجاوز لاعب 1 ضد 1 من 10</label><input id="dribbleOneSimple" type="number" min="0" max="10" step="1" value="7"></div>
           </div>
-          <div class="help">DRI = 35% زمن السلالوم + 30% تحكم + 20% 1v1 + 15% نظافة التنفيذ.</div>
+          <div class="help" id="driCalc">الحسبة تظهر هنا.</div>
         </div>
 
         <div class="form-section">
-          <h3>DEF الدفاع <span class="badge" id="defPreview">—</span></h3>
-          <div class="grid3">
-            <div class="field"><label>Tackles /10</label><input id="tackles" type="number" min="0" max="10" value="5"></div>
-            <div class="field"><label>Interceptions /10</label><input id="interceptions" type="number" min="0" max="10" value="5"></div>
-            <div class="field"><label>Defensive Duels /10</label><input id="defDuels" type="number" min="0" max="10" value="5"></div>
+          <h3>الدفاع <span class="badge" id="defPreview">—</span></h3>
+          <div class="grid">
+            <div class="field"><label>افتكاك الكرة من 10</label><input id="defTackleSimple" type="number" min="0" max="10" step="1" value="6"></div>
+            <div class="field"><label>قطع التمريرات من 10</label><input id="defInterceptSimple" type="number" min="0" max="10" step="1" value="6"></div>
           </div>
-          <div class="help">DEF = 40% افتكاك + 35% قطع + 25% التحامات دفاعية.</div>
+          <div class="help" id="defCalc">الحسبة تظهر هنا.</div>
         </div>
 
         <div class="form-section">
-          <h3>PHY البدنية <span class="badge" id="phyPreview">—</span></h3>
-          <div class="grid3">
-            <div class="field"><label>Stamina /10</label><input id="stamina" type="number" min="0" max="10" value="7"></div>
-            <div class="field"><label>Strength /10</label><input id="strength" type="number" min="0" max="10" value="6"></div>
-            <div class="field"><label>Balance /10</label><input id="balance" type="number" min="0" max="10" value="7"></div>
+          <h3>البدنية <span class="badge" id="phyPreview">—</span></h3>
+          <div class="grid">
+            <div class="field"><label>التحمل من 10</label><input id="phyStaminaSimple" type="number" min="0" max="10" step="1" value="7"></div>
+            <div class="field"><label>القوة البدنية من 10</label><input id="phyStrengthSimple" type="number" min="0" max="10" step="1" value="7"></div>
           </div>
-          <div class="help">PHY = 40% تحمل + 35% قوة + 25% توازن.</div>
+          <div class="help" id="phyCalc">الحسبة تظهر هنا.</div>
         </div>
       </div>
     </div>
 
     <div class="actions">
       <button class="btn primary" onclick="calculateAndSave()">احسب واحفظ النتيجة</button>
-      <button class="btn" onclick="previewRatings()">تحديث المعاينة فقط</button>
-      <button class="btn danger" onclick="resetForm()">مسح الحقول</button>
+      <button class="btn" onclick="previewRatings()">حدّث الحسبة</button>
+      <button class="btn danger" onclick="resetForm()">مسح بيانات اللاعب</button>
     </div>
   </section>
 
@@ -402,7 +392,7 @@
     </div>
     <div class="card">
       <div class="leaderboard-row header">
-        <span>#</span><span>اللاعب</span><span>OVR</span><span>PAC</span><span>SHO</span><span>PAS</span><span>DRI</span><span>DEF</span><span>PHY</span>
+        <span>#</span><span>اللاعب</span><span>التقييم</span><span>سرعة</span><span>تسديد</span><span>تمرير</span><span>مراوغة</span><span>دفاع</span><span>بدنية</span>
       </div>
       <div id="leaderboard"></div>
     </div>
@@ -441,66 +431,40 @@ function inverseTime(value, best, worst){
   return clamp(35 + ratio*64);
 }
 
-function getRatings(){
-  const pac = clamp(
-    inverseTime($('sprint30').value,3.65,6.20)*.45 +
-    inverseTime($('sprint10').value,1.55,2.60)*.35 +
-    inverseTime($('agility').value,6.8,11.8)*.20
-  );
-
-  const sho = clamp(
-    score10($('finishing').value)*.30 +
-    score10($('shotAccuracy').value)*.25 +
-    score10($('longShots').value)*.20 +
-    score10($('weakFoot').value)*.15 +
-    score10($('pressureShot').value)*.10
-  );
-
-  const pas = clamp(
-    score10($('shortPass').value)*.35 +
-    score10($('longPass').value)*.30 +
-    score10($('movingPass').value)*.20 +
-    score10($('throughPass').value)*.15
-  );
-
-  const dri = clamp(
-    inverseTime($('slalom').value,8.5,18.0)*.35 +
-    score10($('ballControl').value)*.30 +
-    score10($('oneVOne').value)*.20 +
-    score10($('cleanRun').value)*.15
-  );
-
-  const def = clamp(
-    score10($('tackles').value)*.40 +
-    score10($('interceptions').value)*.35 +
-    score10($('defDuels').value)*.25
-  );
-
-  const phy = clamp(
-    score10($('stamina').value)*.40 +
-    score10($('strength').value)*.35 +
-    score10($('balance').value)*.25
-  );
-
-  return {PAC:pac, SHO:sho, PAS:pas, DRI:dri, DEF:def, PHY:phy};
+function val10(id){
+  const el=$(id);
+  let v=Number(el?.value);
+  if(!Number.isFinite(v)) v=0;
+  return Math.max(0,Math.min(10,v));
 }
-
-const posWeights = {
-  ST:{PAC:.18,SHO:.34,PAS:.12,DRI:.20,DEF:.03,PHY:.13},
-  LW:{PAC:.25,SHO:.22,PAS:.16,DRI:.26,DEF:.02,PHY:.09},
-  RW:{PAC:.25,SHO:.22,PAS:.16,DRI:.26,DEF:.02,PHY:.09},
-  CAM:{PAC:.10,SHO:.18,PAS:.29,DRI:.27,DEF:.04,PHY:.12},
-  CM:{PAC:.08,SHO:.11,PAS:.28,DRI:.21,DEF:.14,PHY:.18},
-  CDM:{PAC:.08,SHO:.05,PAS:.20,DRI:.12,DEF:.31,PHY:.24},
-  LB:{PAC:.20,SHO:.04,PAS:.15,DRI:.12,DEF:.27,PHY:.22},
-  RB:{PAC:.20,SHO:.04,PAS:.15,DRI:.12,DEF:.27,PHY:.22},
-  CB:{PAC:.10,SHO:.02,PAS:.09,DRI:.06,DEF:.39,PHY:.34},
-};
-function calcOVR(ratings,pos){
-  const w=posWeights[pos]||posWeights.CM;
-  let total=0;
-  Object.keys(w).forEach(k=>total+=ratings[k]*w[k]);
-  return clamp(total);
+function simpleRating(a,b){
+  return clamp(((a+b)/2)*10);
+}
+function getRatings(){
+  const values={
+    pace1:val10('paceRun'), pace2:val10('paceAccel'),
+    sho1:val10('shotAccuracySimple'), sho2:val10('shotPowerSimple'),
+    pas1:val10('passShortSimple'), pas2:val10('passLongSimple'),
+    dri1:val10('dribbleControlSimple'), dri2:val10('dribbleOneSimple'),
+    def1:val10('defTackleSimple'), def2:val10('defInterceptSimple'),
+    phy1:val10('phyStaminaSimple'), phy2:val10('phyStrengthSimple')
+  };
+  return {
+    PAC:simpleRating(values.pace1,values.pace2),
+    SHO:simpleRating(values.sho1,values.sho2),
+    PAS:simpleRating(values.pas1,values.pas2),
+    DRI:simpleRating(values.dri1,values.dri2),
+    DEF:simpleRating(values.def1,values.def2),
+    PHY:simpleRating(values.phy1,values.phy2)
+  };
+}
+function calcOVR(ratings){
+  return clamp((ratings.PAC+ratings.SHO+ratings.PAS+ratings.DRI+ratings.DEF+ratings.PHY)/6);
+}
+function setCalc(id,a,b,label){
+  const x=val10(a), y=val10(b);
+  const score=simpleRating(x,y);
+  $(id).textContent=`${label}: (${x} + ${y}) ÷ 2 × 10 = ${score}`;
 }
 function previewRatings(){
   const r=getRatings();
@@ -510,6 +474,13 @@ function previewRatings(){
   $('driPreview').textContent=r.DRI;
   $('defPreview').textContent=r.DEF;
   $('phyPreview').textContent=r.PHY;
+
+  setCalc('pacCalc','paceRun','paceAccel','السرعة');
+  setCalc('shoCalc','shotAccuracySimple','shotPowerSimple','التسديد');
+  setCalc('pasCalc','passShortSimple','passLongSimple','التمرير');
+  setCalc('driCalc','dribbleControlSimple','dribbleOneSimple','المراوغة');
+  setCalc('defCalc','defTackleSimple','defInterceptSimple','الدفاع');
+  setCalc('phyCalc','phyStaminaSimple','phyStrengthSimple','البدنية');
 }
 document.querySelectorAll('#test input,#test select').forEach(el=>el.addEventListener('input',previewRatings));
 previewRatings();
@@ -526,7 +497,7 @@ function calculateAndSave(){
     age:$('age').value||'',
     episode:$('episode').value.trim(),
     ratings,
-    ovr:calcOVR(ratings,pos),
+    ovr:calcOVR(ratings),
     createdAt:new Date().toLocaleString('ar-SA')
   };
   players.push(result);
@@ -553,7 +524,10 @@ function renderResult(){
       </div>
     </div>
     <div class="ratings">
-      ${Object.entries(r).map(([k,v])=>`<div class="rating"><b>${v}</b><span>${k}</span></div>`).join('')}
+      ${[
+        ['السرعة',r.PAC],['التسديد',r.SHO],['التمرير',r.PAS],
+        ['المراوغة',r.DRI],['الدفاع',r.DEF],['البدنية',r.PHY]
+      ].map(([name,v])=>`<div class="rating"><b>${v}</b><span>${name}</span></div>`).join('')}
     </div>
     <div class="actions">
       <button class="btn primary" onclick="openPage('studio')">اصنع البطاقة</button>
